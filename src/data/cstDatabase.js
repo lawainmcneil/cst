@@ -9,6 +9,48 @@
 const holdingsDB = {
 
   // ============================================================
+  // INDIVIDUAL STOCKS — A
+  // ============================================================
+
+  A: {
+    ticker: 'A',
+    name: 'Agilent Technologies, Inc.',
+    type: 'stock',
+    sector: 'Healthcare / Life Sciences Instruments',
+    status: 'REVIEW',
+    tier: 3,
+    baseScore: 100,
+    violations: [
+      {
+        tier: 3,
+        type: 'Cultural Scandal',
+        subtype: 'Corporate Benefits Verification Required',
+        description:
+          'Agilent Technologies is a large-cap life sciences instruments and diagnostics company headquartered in Santa Clara, CA. Companies at this scale and location profile (Silicon Valley, large-cap, life sciences sector) have a very high base rate of abortion travel benefit adoption post-Dobbs (2022). Full HRC CEI database query and Agilent SEC 10-K benefits section review required to confirm or clear Tier 3 status. Provisional penalty applied pending verification.',
+        penalty: -10,
+        source:
+          'Requires HRC CEI database query; Agilent Technologies Form 10-K benefits section review; provisional assessment based on company profile',
+        cooperationLevel: 'Requires Verification',
+      },
+    ],
+    virtueBonus: 10,
+    dataConfidence: 'requires-verification',
+    magisterialBasis:
+      'Compendium of the Social Doctrine of the Church, §§234–237 (Access to Healthcare); §§214 (Human Dignity)',
+    foundationalEncyclical: 'Centesimus Annus (John Paul II); Evangelium Vitae (John Paul II)',
+    dataEvidence:
+      'Agilent Technologies manufactures analytical instruments (HPLC, mass spectrometry, gas chromatography), genomics tools (microarrays, DNA analysis), and pathology/diagnostics solutions (Dako division — cancer diagnostics). No confirmed Tier 1 violations: Agilent sells laboratory instruments and reagents to research customers; it does not itself conduct embryonic stem cell research, manufacture abortifacients, or provide abortion services. Selling analytical equipment to labs is remote material cooperation — identical in moral structure to selling laboratory glassware. NCBC framework does not implicate this as Tier 1. Tier 3 benefits status requires live HRC CEI verification.',
+    cooperationAnalysis:
+      'No confirmed Tier 1 or Tier 2 violations. Agilent\'s sale of analytical instruments and reagents to research labs constitutes remote material cooperation at most — the instruments have broad legitimate scientific applications and Agilent does not control downstream use. This is analogous to a chemical supplier or glassware manufacturer; the NCBC cooperation framework classifies this as remote, permissible cooperation. Tier 3 corporate benefits policy requires confirmation.',
+    ncbcNote:
+      'Agilent supplies tools (microarrays, gene expression analysis platforms) that may be used by researchers in embryonic or genomic research contexts. However, supplying general-purpose analytical instruments is classified as remote material cooperation under NCBC guidelines — Agilent has no knowledge of or control over every research application. This is not a Tier 1 violation. Confirm: does Agilent itself conduct active hESC research in its own labs? If so, Tier 1 would apply. Current data does not support this finding.',
+    stewardship:
+      'Provisional REVIEW. Schedule Fiduciary Review for HRC CEI query to confirm/clear Tier 3 benefits status. Positive Tier 4 Virtue Multiplier factors: Dako cancer diagnostics division, food safety testing, and environmental analysis platforms all represent genuine contributions to human health and stewardship of creation per Laudato Si\'.',
+    recommendAction: 'VERIFY',
+    requiresVerification: true,
+  },
+
+  // ============================================================
   // DOCUMENTED IN ETHOS LOGOS FRAMEWORK (High Confidence)
   // ============================================================
 
