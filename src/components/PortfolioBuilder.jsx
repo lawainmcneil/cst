@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import holdingsDB, { searchHoldings } from '../data/cstDatabase'
+import { autoScreenTicker } from '../services/autoScreen'
 import { scorePortfolio, scoreHolding, getGradeColors, TIER_META } from '../utils/scoring'
 import GradeDisplay from './GradeDisplay'
 import FiduciaryReport from './FiduciaryReport'
@@ -11,6 +12,7 @@ export default function PortfolioBuilder() {
   const [suggestions, setSuggestions] = useState([])
   const [analysisResult, setAnalysisResult] = useState(null)
   const [error, setError] = useState('')
+  const [addingTicker, setAddingTicker] = useState(null) // ticker being EDGAR-screened
   const [viewMode, setViewMode] = useState('pm')           // 'pm' | 'fiduciary'
   const [accountType, setAccountType] = useState('qualified') // 'qualified' | 'taxable'
   const tickerRef = useRef(null)
@@ -27,17 +29,32 @@ export default function PortfolioBuilder() {
     }
   }
 
-  const addEntry = (ticker) => {
+  const addEntry = async (ticker) => {
     const t = (ticker || tickerInput).trim().toUpperCase()
     const weight = Number(weightInput)
     setSuggestions([])
 
     if (!t) { setError('Please enter a ticker symbol.'); return }
-    if (!holdingsDB[t]) { setError(`"${t}" not found in database. Try a known ticker.`); return }
     if (!weight || weight <= 0 || weight > 100) { setError('Enter a portfolio weight between 0.1% and 100%.'); return }
     if (entries.find((e) => e.ticker === t)) { setError(`${t} is already in the portfolio.`); return }
 
-    setEntries([...entries, { ticker: t, holding: holdingsDB[t], weight }])
+    let holding = holdingsDB[t]
+
+    if (!holding) {
+      // Not in manual DB — attempt EDGAR auto-screen
+      setAddingTicker(t)
+      setError('')
+      try {
+        holding = await autoScreenTicker(t)
+      } catch (err) {
+        setAddingTicker(null)
+        setError(`"${t}" not found in database or SEC EDGAR. Verify the ticker symbol.`)
+        return
+      }
+      setAddingTicker(null)
+    }
+
+    setEntries([...entries, { ticker: t, holding, weight, provisional: !!holding.provisional }])
     setTickerInput('')
     setWeightInput('')
     setAnalysisResult(null)
@@ -140,11 +157,27 @@ export default function PortfolioBuilder() {
 
                 <button
                   onClick={() => addEntry()}
-                  className="btn-primary py-2.5 px-4 text-sm flex-shrink-0"
+                  disabled={!!addingTicker}
+                  className="btn-primary py-2.5 px-4 text-sm flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed min-w-[70px]"
                 >
-                  + Add
+                  {addingTicker ? (
+                    <span className="flex items-center gap-1.5">
+                      <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.3"/>
+                        <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+                      </svg>
+                      <span>…</span>
+                    </span>
+                  ) : '+ Add'}
                 </button>
               </div>
+
+              {addingTicker && (
+                <p className="text-amber-600 text-xs mt-2 flex items-center gap-1">
+                  <span className="animate-pulse">⚡</span>
+                  Auto-screening <span className="font-mono font-bold">{addingTicker}</span> via SEC EDGAR…
+                </p>
+              )}
 
               {error && (
                 <p className="text-red-600 text-xs mt-2 flex items-center gap-1">
@@ -195,7 +228,12 @@ export default function PortfolioBuilder() {
                       <div key={e.ticker} className="flex items-center gap-3 py-2.5">
                         <span className="font-mono font-bold text-brand-dark text-sm w-14">{e.ticker}</span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-brand-dark truncate">{e.holding.name}</p>
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-sm text-brand-dark truncate">{e.holding.name}</p>
+                            {e.provisional && (
+                              <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 border border-amber-200 flex-shrink-0">⚡ Auto</span>
+                            )}
+                          </div>
                           <p className="text-xs text-brand-muted">{e.holding.sector}</p>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">

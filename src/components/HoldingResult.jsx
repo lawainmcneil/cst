@@ -22,11 +22,14 @@ const CONFIDENCE_LABEL = {
   'public-data':           { label: 'Public Data', color: 'text-blue-700 bg-blue-50 border-blue-200' },
   estimated:               { label: 'Estimated', color: 'text-amber-700 bg-amber-50 border-amber-200' },
   'requires-verification': { label: 'Requires Verification', color: 'text-slate-600 bg-slate-50 border-slate-200' },
+  'auto-screen':           { label: 'EDGAR Auto-Screen', color: 'text-amber-700 bg-amber-50 border-amber-300' },
 }
 
-export default function HoldingResult({ holding }) {
+export default function HoldingResult({ holding, provisional = false }) {
   const [expanded, setExpanded] = useState(false)
-  const result = scoreHolding(holding)
+  const violations = holding.violations || []
+  const flags = holding.flags || []
+  const result = scoreHolding({ ...holding, violations })
   const colors = getGradeColors(result.gradeClass)
   const conf = CONFIDENCE_LABEL[holding.dataConfidence] || CONFIDENCE_LABEL['requires-verification']
 
@@ -77,10 +80,10 @@ export default function HoldingResult({ holding }) {
       />
 
       {/* Violations */}
-      {holding.violations.length > 0 ? (
+      {violations.length > 0 ? (
         <div className="space-y-3">
           <p className="section-label">Violations Detected</p>
-          {holding.violations.map((v, i) => {
+          {violations.map((v, i) => {
             const tierMeta = TIER_META[v.tier] || {}
             return (
               <div
@@ -143,6 +146,28 @@ export default function HoldingResult({ holding }) {
         </div>
       )}
 
+      {/* SIC / EDGAR flags — review signals, not hard violations */}
+      {flags.length > 0 && (
+        <div className="space-y-2">
+          <p className="section-label">Review Flags</p>
+          <p className="text-xs text-brand-muted mb-2">
+            These signals require analyst review but are not automatic violations.
+          </p>
+          {flags.map((f, i) => (
+            <div key={i} className="rounded-xl border border-slate-200 bg-slate-50 p-3 flex items-start gap-3">
+              <span className="text-slate-400 text-lg mt-0.5">⚑</span>
+              <div>
+                <p className="font-semibold text-slate-700 text-sm">{f.label}</p>
+                {f.note && <p className="text-xs text-slate-500 mt-0.5">{f.note}</p>}
+                {f.sic && (
+                  <p className="text-xs text-slate-400 mt-0.5 font-mono">SIC {f.sic}</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Virtue Multiplier */}
       {holding.virtueBonus > 0 && (
         <div className="card bg-emerald-50 border-emerald-200">
@@ -171,8 +196,14 @@ export default function HoldingResult({ holding }) {
           className="w-full flex items-center justify-between text-left"
         >
           <div>
-            <p className="section-label">Theological & Data Defense</p>
-            <p className="text-sm text-brand-muted mt-0.5">Magisterial basis, forensic evidence, cooperation analysis</p>
+            <p className="section-label">
+              {provisional ? 'EDGAR Screening Data' : 'Theological & Data Defense'}
+            </p>
+            <p className="text-sm text-brand-muted mt-0.5">
+              {provisional
+                ? 'Company metadata, SIC classification, HRC CEI benefits data'
+                : 'Magisterial basis, forensic evidence, cooperation analysis'}
+            </p>
           </div>
           <span className={`text-brand-orange text-xl transition-transform ${expanded ? 'rotate-180' : ''}`}>
             ▾
@@ -181,29 +212,79 @@ export default function HoldingResult({ holding }) {
 
         {expanded && (
           <div className="mt-5 space-y-4 border-t border-brand-border pt-5 animate-fade-in-up">
-            <DefenseBlock label="Magisterial Basis" value={holding.magisterialBasis} />
-            <DefenseBlock label="Foundational Encyclical" value={holding.foundationalEncyclical} />
-            <DefenseBlock label="Forensic Data Evidence" value={holding.dataEvidence} />
-            <DefenseBlock label="Cooperation Analysis" value={holding.cooperationAnalysis} />
-            {holding.ncbcNote && (
-              <DefenseBlock label="NCBC Bioethics Review" value={holding.ncbcNote} highlight />
-            )}
-            {holding.activeEngagement && (
-              <div className="flex items-center gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
-                <span>⟳</span>
-                <span className="font-semibold">Active Stewardship Engagement:</span>
-                <span>This holding is subject to active shareholder engagement per the "voice, vote, exit" protocol of Mensuram Bonam.</span>
-              </div>
+            {provisional ? (
+              // EDGAR auto-screen data display
+              <>
+                {holding.edgarData && (
+                  <>
+                    <DefenseBlock
+                      label="EDGAR Company Record"
+                      value={`CIK: ${holding.edgarData.cik} | Entity: ${holding.edgarData.entityType || 'N/A'} | State: ${holding.edgarData.stateOfIncorporation || 'N/A'} | Exchanges: ${holding.edgarData.exchanges?.join(', ') || 'N/A'}`}
+                    />
+                    <DefenseBlock
+                      label="SIC Classification"
+                      value={`SIC ${holding.edgarData.sic || 'N/A'} — ${holding.edgarData.sicDescription || 'No description'}`}
+                    />
+                  </>
+                )}
+                {holding.hrcData && (
+                  <DefenseBlock
+                    label="HRC Corporate Equality Index"
+                    value={`Score: ${holding.hrcData.score}/100 | Abortion Travel Subsidy: ${holding.hrcData.abortionTravel ? 'YES ⚠' : 'No'} | Gender Transition Benefits: ${holding.hrcData.genderTrans ? 'YES ⚠' : 'No'} | Data Confirmed: ${holding.hrcData.confirmed ? 'Yes' : 'Estimated'}`}
+                  />
+                )}
+                <DefenseBlock
+                  label="Screening Methodology"
+                  value="Auto-screened via SEC EDGAR API. SIC code mapped to CST tier classifications. HRC CEI benefits data cross-referenced. This result requires manual analyst verification before use in fiduciary decisions."
+                />
+                {holding.provisionalNotes && (
+                  <div className="rounded-lg p-3 bg-amber-50 border border-amber-200">
+                    <p className="text-xs font-bold tracking-wide uppercase mb-1 text-amber-700">Analyst Notes</p>
+                    <p className="text-xs leading-relaxed text-amber-900 font-mono whitespace-pre-wrap">
+                      {holding.provisionalNotes.split(' | ').join('\n')}
+                    </p>
+                  </div>
+                )}
+              </>
+            ) : (
+              // Manual database data display
+              <>
+                {holding.magisterialBasis && <DefenseBlock label="Magisterial Basis" value={holding.magisterialBasis} />}
+                {holding.foundationalEncyclical && <DefenseBlock label="Foundational Encyclical" value={holding.foundationalEncyclical} />}
+                {holding.dataEvidence && <DefenseBlock label="Forensic Data Evidence" value={holding.dataEvidence} />}
+                {holding.cooperationAnalysis && <DefenseBlock label="Cooperation Analysis" value={holding.cooperationAnalysis} />}
+                {holding.ncbcNote && (
+                  <DefenseBlock label="NCBC Bioethics Review" value={holding.ncbcNote} highlight />
+                )}
+                {holding.activeEngagement && (
+                  <div className="flex items-center gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+                    <span>⟳</span>
+                    <span className="font-semibold">Active Stewardship Engagement:</span>
+                    <span>This holding is subject to active shareholder engagement per the "voice, vote, exit" protocol of Mensuram Bonam.</span>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
       </div>
 
       {/* Stewardship Recommendation */}
-      <div className="card border-brand-orange/30 bg-brand-orange-light">
-        <p className="section-label mb-2">Stewardship Recommendation</p>
-        <p className="text-brand-dark font-medium text-sm leading-relaxed">{holding.stewardship}</p>
-      </div>
+      {holding.stewardship ? (
+        <div className="card border-brand-orange/30 bg-brand-orange-light">
+          <p className="section-label mb-2">Stewardship Recommendation</p>
+          <p className="text-brand-dark font-medium text-sm leading-relaxed">{holding.stewardship}</p>
+        </div>
+      ) : provisional ? (
+        <div className="card border-amber-200 bg-amber-50">
+          <p className="section-label mb-2">Stewardship Recommendation</p>
+          <p className="text-amber-900 font-medium text-sm leading-relaxed">
+            <strong>{holding.recommendAction || 'REVIEW'}</strong> — Provisional auto-screen result.
+            A full analyst review is required before making fiduciary decisions.
+            Contact Ethos Logos Investments for a complete evaluation.
+          </p>
+        </div>
+      ) : null}
 
       {/* Data disclaimer */}
       <p className="text-xs text-brand-muted text-center pb-2">
