@@ -3,6 +3,7 @@ import Header from './components/Header'
 import HeroSection from './components/HeroSection'
 import QuickScreener from './components/QuickScreener'
 import PortfolioBuilder from './components/PortfolioBuilder'
+import HRCReference from './components/HRCReference'
 import FrameworkGuide from './components/FrameworkGuide'
 import Footer from './components/Footer'
 
@@ -11,7 +12,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-brand-light">
-      <Header />
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
       <HeroSection activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Main tool area */}
@@ -19,7 +20,7 @@ export default function App() {
         {/* Tab switcher — sticky below hero */}
         <div className="sticky top-16 z-40 bg-white border-b border-brand-border shadow-sm">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
-            <div className="flex">
+            <div className="flex overflow-x-auto scrollbar-hide">
               <TabButton
                 active={activeTab === 'screener'}
                 onClick={() => setActiveTab('screener')}
@@ -32,16 +33,20 @@ export default function App() {
               >
                 Portfolio Analysis
               </TabButton>
+              <TabButton
+                active={activeTab === 'hrc'}
+                onClick={() => setActiveTab('hrc')}
+              >
+                HRC CEI Database
+              </TabButton>
             </div>
           </div>
         </div>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {activeTab === 'screener' ? (
-            <QuickScreener />
-          ) : (
-            <PortfolioBuilder />
-          )}
+          {activeTab === 'screener' && <QuickScreener />}
+          {activeTab === 'portfolio' && <PortfolioBuilder />}
+          {activeTab === 'hrc' && <HRCReference />}
         </div>
       </div>
 

@@ -1,14 +1,19 @@
 import { useState } from 'react'
 
-const NAV_LINKS = [
-  { label: 'CST Screener', href: '#screener' },
-  { label: 'Portfolio Analysis', href: '#portfolio' },
-  { label: 'The Framework', href: '#framework' },
-  { label: 'About Ethos Logos', href: 'https://ethoslogosinvestments.com', external: true },
-]
-
-export default function Header() {
+export default function Header({ activeTab, setActiveTab }) {
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const TAB_LINKS = [
+    { label: 'CST Screener', tab: 'screener' },
+    { label: 'Portfolio Analysis', tab: 'portfolio' },
+    { label: 'HRC CEI Database', tab: 'hrc' },
+  ]
+
+  const handleTabClick = (tab) => {
+    setActiveTab?.(tab)
+    setMenuOpen(false)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-brand-border shadow-sm">
@@ -29,17 +34,33 @@ export default function Header() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                target={link.external ? '_blank' : undefined}
-                rel={link.external ? 'noopener noreferrer' : undefined}
-                className="px-3 py-2 text-sm font-medium text-brand-dark/80 hover:text-brand-dark rounded-lg hover:bg-brand-warm transition-colors"
+            {TAB_LINKS.map((link) => (
+              <button
+                key={link.tab}
+                onClick={() => handleTabClick(link.tab)}
+                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  activeTab === link.tab
+                    ? 'text-brand-orange bg-orange-50'
+                    : 'text-brand-dark/80 hover:text-brand-dark hover:bg-brand-warm'
+                }`}
               >
                 {link.label}
-              </a>
+              </button>
             ))}
+            <a
+              href="#framework"
+              className="px-3 py-2 text-sm font-medium text-brand-dark/80 hover:text-brand-dark rounded-lg hover:bg-brand-warm transition-colors"
+            >
+              The Framework
+            </a>
+            <a
+              href="https://ethoslogosinvestments.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-2 text-sm font-medium text-brand-dark/80 hover:text-brand-dark rounded-lg hover:bg-brand-warm transition-colors"
+            >
+              About Ethos Logos
+            </a>
           </nav>
 
           {/* CTA */}
@@ -70,18 +91,26 @@ export default function Header() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden border-t border-brand-border bg-white px-4 py-3 space-y-1">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              target={link.external ? '_blank' : undefined}
-              rel={link.external ? 'noopener noreferrer' : undefined}
-              onClick={() => setMenuOpen(false)}
-              className="block px-3 py-2 text-sm font-medium text-brand-dark hover:bg-brand-warm rounded-lg"
+          {TAB_LINKS.map((link) => (
+            <button
+              key={link.tab}
+              onClick={() => handleTabClick(link.tab)}
+              className={`w-full text-left px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                activeTab === link.tab
+                  ? 'text-brand-orange bg-orange-50'
+                  : 'text-brand-dark hover:bg-brand-warm'
+              }`}
             >
               {link.label}
-            </a>
+            </button>
           ))}
+          <a
+            href="#framework"
+            onClick={() => setMenuOpen(false)}
+            className="block px-3 py-2 text-sm font-medium text-brand-dark hover:bg-brand-warm rounded-lg"
+          >
+            The Framework
+          </a>
           <div className="pt-2">
             <a
               href="https://ethoslogosinvestments.com"
