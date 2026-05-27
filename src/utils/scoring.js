@@ -97,6 +97,7 @@ export function scorePortfolio(holdingEntries) {
     breakdown,
     tier2Exposure: calcTierExposure(normalizedEntries, 2),
     tier3Exposure: calcTierExposure(normalizedEntries, 3),
+    tier4Exposure: calcTierExposure(normalizedEntries, 4),
   }
 }
 
@@ -200,6 +201,13 @@ export const TIER_META = {
     textColor: 'text-emerald-900',
     iconColor: 'text-emerald-600',
     icon: '+',
-    description: 'Positive alignment bonus (+20 pts)',
+    description: 'Mission alignment (+20 pts) / Vice Inverse penalty',
+    // Vice Inverse: when a company actively does the opposite of a virtue
+    // (e.g. algorithmic addiction of minors = inverse of human flourishing)
+    penaltyColor: 'bg-purple-700 text-white',
+    penaltyBorderColor: 'border-purple-200',
+    penaltyBgColor: 'bg-purple-50',
+    penaltyTextColor: 'text-purple-900',
+    penaltyIconColor: 'text-purple-600',
   },
 }

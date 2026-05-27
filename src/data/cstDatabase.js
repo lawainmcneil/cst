@@ -454,13 +454,13 @@ const holdingsDB = {
     baseScore: 100,
     violations: [
       {
-        tier: 3,
-        type: 'Cultural Scandal',
-        subtype: 'Algorithmic Manipulation of Minors',
+        tier: 4,
+        type: 'Vice Multiplier — Virtue Inverse',
+        subtype: 'Algorithmic Addiction of Minors',
         description:
-          'Platform algorithms are deliberately engineered to create psychological dependency in minors, constituting a Tier 3 Virtue Inverse penalty under the CST framework.',
+          'Platform algorithms are deliberately engineered to maximize psychological dependency in minors — the direct inverse of the Tier 4 Virtue Multiplier. Where virtuous companies deploy technology to enhance human flourishing, Meta deploys algorithmic systems to commodify human attention, particularly that of children, for advertising revenue. This constitutes a Tier 4 Vice Inverse penalty under the Ethos Logos fiduciary protocol and the system instructions for the Master Ethicist Decision Tree.',
         penalty: -30,
-        source: 'FTC regulatory filings; U.S. Senate Judiciary Committee testimony (2024); FTC complaint documentation',
+        source: 'FTC regulatory filings; U.S. Senate Judiciary Committee testimony (2024); FTC complaint documentation; Laudato Si\' §47 (technological colonialism)',
         cooperationLevel: 'Proximate Material',
       },
       {
@@ -2267,10 +2267,19 @@ const holdingsDB = {
       {
         tier: 3,
         type: 'Cultural Scandal',
-        subtype: 'Abortion Travel Subsidy + Direct IPPF Funding',
-        description: 'Merck provides abortion travel subsidies to employees AND made a confirmed $20,000 direct corporate grant to IPPF EN (International Planned Parenthood Federation European Network) in 2023 — documented in Merck\'s own published Charitable Contributions Report.',
+        subtype: 'Abortion Travel Subsidy',
+        description: 'Merck provides subsidized out-of-state abortion travel benefits for employees, confirmed via HRC Corporate Equality Index documentation.',
         penalty: -20,
-        source: 'Merck & Co. 2023 Charitable Contributions Report (published on merck.com); HRC CEI database',
+        source: 'HRC CEI database; Merck corporate benefits documentation',
+        cooperationLevel: 'Proximate Material',
+      },
+      {
+        tier: 3,
+        type: 'Cultural Scandal',
+        subtype: 'Direct Corporate Grant to Illicit NGO',
+        description: 'Merck made a confirmed $20,000 direct corporate check to IPPF EN (International Planned Parenthood Federation European Network) in 2023 — documented in Merck\'s own published Charitable Contributions Report. This is a proximate direct grant, not employee-directed matching, and therefore triggers the Tier 3 philanthropy penalty (-10 pts) per the Ethos Logos fiduciary protocol.',
+        penalty: -10,
+        source: 'Merck & Co. 2023 Charitable Contributions Report (published on merck.com)',
         cooperationLevel: 'Proximate Material',
       },
     ],

@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import holdingsDB, { searchHoldings } from '../data/cstDatabase'
 import { scorePortfolio, scoreHolding, getGradeColors, TIER_META } from '../utils/scoring'
 import GradeDisplay from './GradeDisplay'
+import FiduciaryReport from './FiduciaryReport'
 
 export default function PortfolioBuilder() {
   const [entries, setEntries] = useState([])
@@ -10,6 +11,8 @@ export default function PortfolioBuilder() {
   const [suggestions, setSuggestions] = useState([])
   const [analysisResult, setAnalysisResult] = useState(null)
   const [error, setError] = useState('')
+  const [viewMode, setViewMode] = useState('pm')           // 'pm' | 'fiduciary'
+  const [accountType, setAccountType] = useState('qualified') // 'qualified' | 'taxable'
   const tickerRef = useRef(null)
 
   const totalWeight = entries.reduce((sum, e) => sum + Number(e.weight || 0), 0)
@@ -59,6 +62,7 @@ export default function PortfolioBuilder() {
     setEntries([])
     setAnalysisResult(null)
     setError('')
+    setViewMode('pm')
   }
 
   return (
@@ -239,7 +243,75 @@ export default function PortfolioBuilder() {
           {/* Right: Results panel */}
           <div className="lg:col-span-2">
             {analysisResult ? (
-              <PortfolioResults result={analysisResult} entries={entries} />
+              <div className="space-y-3">
+                {/* ── View toggle ───────────────────────────────────────── */}
+                <div className="card p-1.5">
+                  <div className="grid grid-cols-2 gap-1">
+                    <button
+                      onClick={() => setViewMode('pm')}
+                      className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
+                        viewMode === 'pm'
+                          ? 'bg-brand-dark text-white'
+                          : 'text-brand-muted hover:bg-brand-warm'
+                      }`}
+                    >
+                      PM Audit Trail
+                    </button>
+                    <button
+                      onClick={() => setViewMode('fiduciary')}
+                      className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
+                        viewMode === 'fiduciary'
+                          ? 'bg-brand-orange text-white'
+                          : 'text-brand-muted hover:bg-brand-warm'
+                      }`}
+                    >
+                      Fiduciary Report
+                    </button>
+                  </div>
+                </div>
+
+                {/* ── Account type selector (shown in Fiduciary view) ───── */}
+                {viewMode === 'fiduciary' && (
+                  <div className="card p-1.5">
+                    <p className="text-[10px] text-brand-muted text-center mb-1.5 uppercase tracking-wider font-semibold">
+                      Account Type
+                    </p>
+                    <div className="grid grid-cols-2 gap-1">
+                      <button
+                        onClick={() => setAccountType('qualified')}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                          accountType === 'qualified'
+                            ? 'bg-emerald-600 text-white'
+                            : 'text-brand-muted hover:bg-brand-warm'
+                        }`}
+                      >
+                        Qualified (IRA/401k)
+                      </button>
+                      <button
+                        onClick={() => setAccountType('taxable')}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                          accountType === 'taxable'
+                            ? 'bg-emerald-600 text-white'
+                            : 'text-brand-muted hover:bg-brand-warm'
+                        }`}
+                      >
+                        Taxable Account
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Active view ───────────────────────────────────────── */}
+                {viewMode === 'pm' ? (
+                  <PortfolioResults result={analysisResult} entries={entries} />
+                ) : (
+                  <FiduciaryReport
+                    result={analysisResult}
+                    entries={entries}
+                    accountType={accountType}
+                  />
+                )}
+              </div>
             ) : (
               <div className="card py-10 text-center h-full flex flex-col items-center justify-center">
                 <div className="w-16 h-16 rounded-full bg-brand-warm flex items-center justify-center mb-4">
@@ -296,6 +368,13 @@ function PortfolioResults({ result, entries }) {
             color="text-orange-800"
             bg="bg-orange-50"
             show={Number(result.tier3Exposure) > 0}
+          />
+          <ExposureRow
+            label="Tier 4 — Vice Inverse"
+            value={result.tier4Exposure || '0.00'}
+            color="text-purple-800"
+            bg="bg-purple-50"
+            show={Number(result.tier4Exposure) > 0}
           />
           <div className={`flex items-center justify-between rounded-lg px-3 py-2 ${colors.bg} border ${colors.border}`}>
             <span className={`text-xs font-bold ${colors.text}`}>Total Violation</span>
