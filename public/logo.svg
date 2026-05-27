@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" role="img" aria-label="Ethos Logos Investments">
+  <defs>
+    <style>
+      .word { font-family: 'Playfair Display', 'Trajan Pro', 'Times New Roman', Georgia, serif; font-size: 96px; font-weight: 500; fill: #8a8987; letter-spacing: 1px; }
+      .invest { font-family: 'Helvetica Neue', 'Arial Black', Arial, sans-serif; font-size: 52px; font-weight: 800; fill: #EC7823; letter-spacing: 12px; }
+    </style>
+  </defs>
+
+  <!-- Ethos -->
+  <text x="10" y="115" class="word">Ethos</text>
+
+  <!-- Center monogram: stylized O with orange accent -->
+  <g transform="translate(320, 75)">
+    <ellipse cx="0" cy="38" rx="30" ry="42" fill="none" stroke="#8a8987" stroke-width="5"/>
+    <circle cx="0" cy="22" r="13" fill="#EC7823"/>
+  </g>
+
+  <!-- Logos -->
+  <text x="365" y="115" class="word">Logos</text>
+
+  <!-- INVESTMENTS -->
+  <text x="320" y="195" class="invest" text-anchor="middle">INVESTMENTS</text>
+</svg>
