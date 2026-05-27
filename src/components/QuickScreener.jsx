@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import holdingsDB, { searchHoldings } from '../data/cstDatabase'
 import { autoScreenTicker } from '../services/autoScreen'
+import { enrichWithHRC } from '../utils/enrichHolding'
 import HoldingResult from './HoldingResult'
 
 const SUGGESTIONS = ['AAPL', 'PFE', 'DIS', 'PM', 'CVX', 'SPY', 'CATH', 'META', 'QQQ', 'GEO']
@@ -21,10 +22,10 @@ export default function QuickScreener() {
     setResult(null)
     setErrorMsg('')
 
-    // 1. Check manual database first — instant
+    // 1. Check manual database first — then enrich with HRC CEI
     const manualHolding = holdingsDB[t]
     if (manualHolding) {
-      setResult(manualHolding)
+      setResult(enrichWithHRC(manualHolding))
       setScreenState('found')
       return
     }

@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import holdingsDB, { searchHoldings } from '../data/cstDatabase'
 import { autoScreenTicker } from '../services/autoScreen'
+import { enrichWithHRC } from '../utils/enrichHolding'
 import { scorePortfolio, scoreHolding, getGradeColors, TIER_META } from '../utils/scoring'
 import GradeDisplay from './GradeDisplay'
 import FiduciaryReport from './FiduciaryReport'
@@ -53,6 +54,9 @@ export default function PortfolioBuilder() {
       }
       setAddingTicker(null)
     }
+
+    // Always cross-reference HRC CEI for any stock holding
+    holding = enrichWithHRC(holding)
 
     setEntries([...entries, { ticker: t, holding, weight, provisional: !!holding.provisional }])
     setTickerInput('')

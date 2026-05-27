@@ -96,12 +96,23 @@ export default function HoldingResult({ holding, provisional = false }) {
                       {tierMeta.shortLabel}
                     </span>
                     <div>
-                      <p className={`font-semibold text-sm ${tierMeta.textColor || 'text-gray-800'}`}>
-                        {v.type}
-                        {v.subtype && (
-                          <span className="font-normal opacity-80"> — {v.subtype}</span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className={`font-semibold text-sm ${tierMeta.textColor || 'text-gray-800'}`}>
+                          {v.type}
+                          {v.subtype && (
+                            <span className="font-normal opacity-80"> — {v.subtype}</span>
+                          )}
+                        </p>
+                        {v.autoEnriched && (
+                          <span className={`inline-flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0 ${
+                            v.hrcConfirmed
+                              ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                              : 'bg-amber-100 text-amber-700 border border-amber-200'
+                          }`}>
+                            {v.hrcConfirmed ? '✓ HRC CEI' : '⚡ HRC CEI est.'}
+                          </span>
                         )}
-                      </p>
+                      </div>
                       <p className={`text-sm mt-1 leading-relaxed ${tierMeta.textColor || 'text-gray-700'} opacity-90`}>
                         {v.description}
                       </p>
